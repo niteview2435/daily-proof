@@ -186,7 +186,7 @@ DAY_TEMPLATE = """<!DOCTYPE html>
   <main class="container">
     {content}
 
-    <nav class="calendar-wrap" aria-label="カレンダー">
+    <nav class="calendar-wrap reveal" aria-label="カレンダー">
       <div id="calendar"></div>
     </nav>
   </main>
