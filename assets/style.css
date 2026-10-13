@@ -1,6 +1,6 @@
 :root {
-  --accent: #3a6ea5;      /* 落ち着いた青 */
-  --accent-dark: #2f5a87; /* hover 用の濃い青 */
+  --ink: #1a1a1a;       /* 濃（見出し・該当日） */
+  --ink-hover: #000000; /* hover */
 }
 
 /* ---- Base typography (adapted from the Web5 ideal) ----
@@ -41,7 +41,7 @@ html, body {
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.2em;
-  color: var(--accent);
+  color: var(--ink);
   margin: 0 0 20px;
 }
 
@@ -61,7 +61,7 @@ html, body {
 .qed {
   text-align: right;
   font-size: 1.3rem;
-  color: var(--accent);
+  color: var(--ink);
   margin: 0;
 }
 
@@ -153,16 +153,16 @@ html, body {
 
 /* 証明がある日は文字をアクセントカラーに */
 .cal-cell.has-proof {
-  color: var(--accent);
+  color: var(--ink);
 }
-a.cal-cell.has-proof:hover { color: var(--accent-dark); }
+a.cal-cell.has-proof:hover { color: var(--ink-hover); }
 
 /* 開いているページの日は、小さめのアクセントカラーの丸で包む */
 .cal-cell.current {
   color: #fff;
   background: radial-gradient(
     circle,
-    var(--accent) 0 1.1em,
+    var(--ink) 0 1.1em,
     transparent 1.1em
   );
 }
