@@ -35,8 +35,10 @@ html, body {
 }
 
 .label {
+  /* 見出しだけゴシック(LaTeX の Computer Modern Sans + 和文ゴシック) */
+  font-family: 'Computer Modern Sans', 'Noto Sans JP', sans-serif;
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.2em;
   color: var(--accent);
   margin: 0 0 20px;
@@ -159,8 +161,8 @@ a.cal-cell.has-proof:hover { color: var(--accent-dark); }
   color: #fff;
   background: radial-gradient(
     circle,
-    var(--accent) 0 0.85em,
-    transparent 0.85em
+    var(--accent) 0 1.1em,
+    transparent 1.1em
   );
 }
 

@@ -117,7 +117,7 @@ DAY_TEMPLATE = """<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{date_jp} — daily-proof</title>
   <link rel="stylesheet" href="{cm_font}" />
-  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&family=Shippori+Mincho&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/style.css" />
   <script>
     window.MathJax = {{
