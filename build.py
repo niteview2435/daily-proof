@@ -95,15 +95,62 @@ def md_to_html(text):
 # --- source parsing ----------------------------------------------------------
 
 def parse(text):
+    """Return a list of (proposition, proof) pairs in document order.
+
+    A day file may hold several `# 命題` / `# 証明` sections; they are paired
+    up sequentially so one day can carry multiple proofs.
+    """
     body = text.strip()
     parts = re.split(r"(?m)^#\s+(命題|証明)\s*$", body)
-    sections = {}
-    rest = iter(parts[1:])
+    rest = iter(parts[1:])  # alternating (name, content)
+
+    pairs = []
+    pending_prop = None
     for name, content in zip(rest, rest):
-        sections[name] = content.strip()
-    prop = sections.get("命題", "")
-    proof = sections.get("証明", parts[0].strip() if not sections else "")
-    return prop, proof
+        content = content.strip()
+        if name == "命題":
+            if pending_prop is not None:
+                pairs.append((pending_prop, ""))  # proposition with no proof yet
+            pending_prop = content
+        else:  # 証明
+            pairs.append((pending_prop or "", content))
+            pending_prop = None
+    if pending_prop is not None:
+        pairs.append((pending_prop, ""))
+    return pairs
+
+
+def render_sections(pairs, date_jp_str):
+    """Build the stacked proposition/proof <section>s for one day page."""
+    multi = len(pairs) > 1
+    out = []
+    first = [True]
+
+    def eyebrow():
+        if first[0]:
+            first[0] = False
+            return f'<p class="eyebrow">{date_jp_str}</p>\n      '
+        return ""
+
+    for i, (prop, proof) in enumerate(pairs, 1):
+        plabel = f"命題 {i}" if multi else "命題"
+        qlabel = f"証明 {i}" if multi else "証明"
+        if prop.strip():
+            out.append(
+                '<section class="block reveal">\n'
+                f"      {eyebrow()}<h2 class=\"label\">{plabel}</h2>\n"
+                f'      <div class="body">{md_to_html(prop)}</div>\n'
+                "    </section>"
+            )
+        if proof.strip():
+            out.append(
+                '<section class="block reveal">\n'
+                f"      {eyebrow()}<h2 class=\"label\">{qlabel}</h2>\n"
+                f'      <div class="body">{md_to_html(proof)}</div>\n'
+                '      <p class="qed">∎</p>\n'
+                "    </section>"
+            )
+    return "\n\n    ".join(out)
 
 
 def date_jp(d):
@@ -137,17 +184,7 @@ DAY_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body data-date="{date}">
   <main class="container">
-    <section class="block reveal">
-      <p class="eyebrow">{date_jp}</p>
-      <h2 class="label">命題</h2>
-      <div class="body">{prop}</div>
-    </section>
-
-    <section class="block reveal">
-      <h2 class="label">証明</h2>
-      <div class="body">{proof}</div>
-      <p class="qed">∎</p>
-    </section>
+    {content}
 
     <nav class="calendar-wrap" aria-label="カレンダー">
       <div id="calendar"></div>
@@ -203,12 +240,11 @@ def build():
     entries = []
     for md in sorted(SRC.glob("*.md")):
         d = md.stem  # YYYY-MM-DD
-        prop, proof = parse(md.read_text(encoding="utf-8"))
+        pairs = parse(md.read_text(encoding="utf-8"))
         html = DAY_TEMPLATE.format(
             date=d,
             date_jp=date_jp(d),
-            prop=md_to_html(prop),
-            proof=md_to_html(proof),
+            content=render_sections(pairs, date_jp(d)),
             mathjax=MATHJAX_CDN,
             lm_roman=LM_ROMAN_CSS,
             lm_sans=LM_SANS_CSS,
