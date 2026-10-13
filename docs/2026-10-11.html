@@ -3,34 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>素数は無限に存在する — daily-proof</title>
-  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <title>2026年10月11日 — daily-proof</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/style.css" />
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]]
+      },
+      startup: { typeset: false },
+      options: { enableMenu: false }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body data-date="2026-10-11">
   <main class="container">
-    <header class="site-header">
-      <p class="eyebrow reveal" data-delay="60">2026年10月11日</p>
-      <h1 class="title reveal" data-delay="120">素数は無限に存在する</h1>
-      <p class="source reveal" data-delay="160">出典：ユークリッド原論 第9巻 命題20</p>
-      <hr class="divider reveal" data-delay="200" aria-hidden="true" />
-    </header>
-
-    <section class="block">
-      <h2 class="label reveal">命題</h2>
-      <div class="body fragmentize"><p>素数は無限に存在する。</p></div>
+    <section class="block reveal">
+      <p class="eyebrow">2026年10月11日</p>
+      <h2 class="label">命題</h2>
+      <div class="body"><p>素数は無限に存在する。</p></div>
     </section>
 
-    <section class="block">
-      <h2 class="label reveal">証明</h2>
-      <div class="body fragmentize"><p>素数が有限個しかないと仮定し、それらをすべて並べて $p_1, p_2, \dots, p_n$ とする。</p>
+    <section class="block reveal">
+      <h2 class="label">証明</h2>
+      <div class="body"><p>素数が有限個しかないと仮定し、それらをすべて並べて $p_1, p_2, \dots, p_n$ とする。</p>
 <p>ここで次の数を考える。</p>
 <p>$$ N = p_1 p_2 \cdots p_n + 1 $$</p>
 <p>$N$ はどの $p_i$ で割っても必ず $1$ 余るので、$p_1, \dots, p_n$ のいずれでも割り切れない。</p>
 <p>一方、$N$ は $1$ より大きい整数だから、少なくとも1つの素因数をもつ。その素因数は $p_1, \dots, p_n$ のどれでもない新しい素数である。</p>
 <p>これは素数が $p_1, \dots, p_n$ ですべてだという仮定に反する。ゆえに素数は無限に存在する。</p></div>
-      <p class="qed reveal">∎</p>
+      <p class="qed">∎</p>
     </section>
 
     <nav class="calendar-wrap" aria-label="カレンダー">
@@ -38,8 +43,6 @@
     </nav>
   </main>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script defer src="./assets/reveal.js"></script>
   <script defer src="./assets/calendar.js"></script>
 </body>

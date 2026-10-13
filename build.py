@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Generate the daily-proof static site into docs/.
 
-Sources live in proofs/YYYY-MM-DD.md. Each becomes docs/YYYY-MM-DD.html with
-a scroll-triggered reveal animation. Math is written as $...$ / $$...$$ and
-rendered client-side by KaTeX, so this script needs only the standard library.
+Sources live in proofs/YYYY-MM-DD.md. Each becomes docs/YYYY-MM-DD.html where
+the proposition and the proof each fade in as one group on scroll. Math is
+written as $...$ / $$...$$ and rendered client-side by MathJax, so this script
+needs only the standard library.
 """
 
 import json
@@ -18,8 +19,9 @@ SRC = ROOT / "proofs"
 OUT = ROOT / "docs"
 ASSETS = ROOT / "assets"
 
-KATEX_VER = "0.16.11"
-KATEX_CDN = f"https://cdn.jsdelivr.net/npm/katex@{KATEX_VER}/dist"
+MATHJAX_CDN = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+# Computer Modern (the classic LaTeX typeface) for Latin/body text.
+CM_FONT_CSS = "https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css"
 
 
 # --- tiny markdown -----------------------------------------------------------
@@ -90,15 +92,7 @@ def md_to_html(text):
 # --- source parsing ----------------------------------------------------------
 
 def parse(text):
-    meta = {}
-    body = text
-    if text.startswith("---"):
-        _, fm, body = text.split("---", 2)
-        for line in fm.strip().splitlines():
-            if ":" in line:
-                k, v = line.split(":", 1)
-                meta[k.strip()] = v.strip()
-    body = body.strip()
+    body = text.strip()
     parts = re.split(r"(?m)^#\s+(命題|証明)\s*$", body)
     sections = {}
     rest = iter(parts[1:])
@@ -106,7 +100,7 @@ def parse(text):
         sections[name] = content.strip()
     prop = sections.get("命題", "")
     proof = sections.get("証明", parts[0].strip() if not sections else "")
-    return meta, prop, proof
+    return prop, proof
 
 
 def date_jp(d):
@@ -121,29 +115,34 @@ DAY_TEMPLATE = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{title} — daily-proof</title>
-  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{katex}/katex.min.css" crossorigin="anonymous" />
+  <title>{date_jp} — daily-proof</title>
+  <link rel="stylesheet" href="{cm_font}" />
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/style.css" />
+  <script>
+    window.MathJax = {{
+      tex: {{
+        inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]],
+        displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]]
+      }},
+      startup: {{ typeset: false }},
+      options: {{ enableMenu: false }}
+    }};
+  </script>
+  <script defer src="{mathjax}"></script>
 </head>
 <body data-date="{date}">
   <main class="container">
-    <header class="site-header">
-      <p class="eyebrow reveal" data-delay="60">{date_jp}</p>
-      <h1 class="title reveal" data-delay="120">{title}</h1>
-      {source}
-      <hr class="divider reveal" data-delay="200" aria-hidden="true" />
-    </header>
-
-    <section class="block">
-      <h2 class="label reveal">命題</h2>
-      <div class="body fragmentize">{prop}</div>
+    <section class="block reveal">
+      <p class="eyebrow">{date_jp}</p>
+      <h2 class="label">命題</h2>
+      <div class="body">{prop}</div>
     </section>
 
-    <section class="block">
-      <h2 class="label reveal">証明</h2>
-      <div class="body fragmentize">{proof}</div>
-      <p class="qed reveal">∎</p>
+    <section class="block reveal">
+      <h2 class="label">証明</h2>
+      <div class="body">{proof}</div>
+      <p class="qed">∎</p>
     </section>
 
     <nav class="calendar-wrap" aria-label="カレンダー">
@@ -151,8 +150,6 @@ DAY_TEMPLATE = """<!DOCTYPE html>
     </nav>
   </main>
 
-  <script defer src="{katex}/katex.min.js" crossorigin="anonymous"></script>
-  <script defer src="{katex}/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script defer src="./assets/reveal.js"></script>
   <script defer src="./assets/calendar.js"></script>
 </body>
@@ -165,11 +162,10 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>daily-proof</title>
-  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap" rel="stylesheet" />
   <style>
     html, body { height: 100%; margin: 0; }
     body { display: grid; place-items: center; background: #fff; color: #9a9a9a;
-           font-family: 'Shippori Mincho', serif; }
+           font-family: serif; }
   </style>
   <script>
     fetch('./index.json')
@@ -186,13 +182,7 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
-NEW_TEMPLATE = """---
-title:
-date: {date}
-source:
----
-
-# 命題
+NEW_TEMPLATE = """# 命題
 
 # 証明
 """
@@ -209,25 +199,17 @@ def build():
     entries = []
     for md in sorted(SRC.glob("*.md")):
         d = md.stem  # YYYY-MM-DD
-        meta, prop, proof = parse(md.read_text(encoding="utf-8"))
-        title = meta.get("title") or d
-        source = meta.get("source", "")
-        source_html = (
-            f'<p class="source reveal" data-delay="160">出典：{source}</p>'
-            if source
-            else ""
-        )
+        prop, proof = parse(md.read_text(encoding="utf-8"))
         html = DAY_TEMPLATE.format(
-            title=title,
             date=d,
             date_jp=date_jp(d),
-            source=source_html,
             prop=md_to_html(prop),
             proof=md_to_html(proof),
-            katex=KATEX_CDN,
+            mathjax=MATHJAX_CDN,
+            cm_font=CM_FONT_CSS,
         )
         (OUT / f"{d}.html").write_text(html, encoding="utf-8")
-        entries.append({"date": d, "title": title, "source": source})
+        entries.append({"date": d})
 
     entries.sort(key=lambda e: e["date"], reverse=True)
     (OUT / "index.json").write_text(
@@ -244,7 +226,7 @@ def scaffold_today():
     if f.exists():
         print(f"{f} already exists")
         return
-    f.write_text(NEW_TEMPLATE.format(date=today), encoding="utf-8")
+    f.write_text(NEW_TEMPLATE, encoding="utf-8")
     print(f"created {f}")
 
 
