@@ -5,5 +5,8 @@
 __pycache__/
 *.pyc
 
+# build output (generated and deployed by CI)
+/docs/
+
 # macOS
 .DS_Store
