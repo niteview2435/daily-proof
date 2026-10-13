@@ -120,17 +120,33 @@ def parse(text):
     return pairs
 
 
-def render_sections(pairs, date_jp_str):
+def parse_tags(text):
+    """Read a leading `tags:` line (before the first section) into a list."""
+    for line in text.strip().splitlines():
+        line = line.strip()
+        if line.startswith("#"):
+            break  # reached a section heading; no tags line above it
+        if line.startswith("tags:"):
+            raw = line[len("tags:"):]
+            return [t for t in re.split(r"[,、\s]+", raw.strip()) if t]
+    return []
+
+
+def render_sections(pairs, date_jp_str, tags):
     """Build the stacked proposition/proof <section>s for one day page."""
     multi = len(pairs) > 1
     out = []
     first = [True]
 
     def eyebrow():
-        if first[0]:
-            first[0] = False
-            return f'<p class="eyebrow">{date_jp_str}</p>\n      '
-        return ""
+        if not first[0]:
+            return ""
+        first[0] = False
+        html = f'<p class="eyebrow">{date_jp_str}</p>\n      '
+        if tags:
+            chips = "".join(f'<span class="tag">{t}</span>' for t in tags)
+            html += f'<p class="tags">{chips}</p>\n      '
+        return html
 
     for i, (prop, proof) in enumerate(pairs, 1):
         plabel = f"命題 {i}" if multi else "命題"
@@ -232,7 +248,9 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
-NEW_TEMPLATE = """# 命題
+NEW_TEMPLATE = """tags:
+
+# 命題
 
 # 証明
 """
@@ -249,17 +267,19 @@ def build():
     entries = []
     for md in sorted(SRC.glob("*.md")):
         d = md.stem  # YYYY-MM-DD
-        pairs = parse(md.read_text(encoding="utf-8"))
+        text = md.read_text(encoding="utf-8")
+        pairs = parse(text)
+        tags = parse_tags(text)
         html = DAY_TEMPLATE.format(
             date=d,
             date_jp=date_jp(d),
-            content=render_sections(pairs, date_jp(d)),
+            content=render_sections(pairs, date_jp(d), tags),
             mathjax=MATHJAX_CDN,
             lm_roman=LM_ROMAN_CSS,
             lm_sans=LM_SANS_CSS,
         )
         (OUT / f"{d}.html").write_text(html, encoding="utf-8")
-        entries.append({"date": d})
+        entries.append({"date": d, "tags": tags})
 
     entries.sort(key=lambda e: e["date"], reverse=True)
     (OUT / "index.json").write_text(

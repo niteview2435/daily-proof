@@ -30,6 +30,24 @@ html, body {
   color: #9a9a9a;
 }
 
+/* 日付と命題の間に並ぶタグ */
+.tags {
+  margin: 0 0 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  font-family: 'Latin Modern Sans', 'Noto Sans JP', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: #6a6a6a;
+  border: 1px solid rgba(64, 64, 64, 0.25);
+  border-radius: 999px;
+  padding: 2px 12px;
+}
+
 /* ---- Proposition / proof blocks ---- */
 .block {
   margin: 0 0 96px;
