@@ -99,11 +99,17 @@ mjx-container[display="true"] {
   }
 }
 
+/* 最後の証明と一緒に出る区切り線 */
+.divider {
+  border: none;
+  height: 1px;
+  background: rgba(64, 64, 64, 0.12);
+  margin: 140px 0 0;
+}
+
 /* ---- Calendar ---- */
 .calendar-wrap {
-  margin-top: 140px;
-  padding-top: 100px;
-  border-top: 1px solid rgba(64, 64, 64, 0.1);
+  margin-top: 100px;
 }
 
 .cal-head {
@@ -178,6 +184,7 @@ a.cal-cell.has-proof:hover { color: var(--ink-hover); }
 @media (max-width: 600px) {
   .container { padding: 56px 20px 96px; }
   .block { margin: 0 0 64px; }
-  .calendar-wrap { margin-top: 96px; padding-top: 64px; }
+  .divider { margin-top: 96px; }
+  .calendar-wrap { margin-top: 72px; }
   .cal-head { margin: 16px 0 56px; gap: 16px; }
 }

@@ -150,6 +150,15 @@ def render_sections(pairs, date_jp_str):
                 '      <p class="qed">∎</p>\n'
                 "    </section>"
             )
+
+    # The divider rides along in the last block so it fades in together with
+    # the final proof; the calendar reveals separately below it.
+    if out:
+        idx = out[-1].rindex("</section>")
+        out[-1] = (
+            out[-1][:idx]
+            + '  <hr class="divider" aria-hidden="true" />\n    </section>'
+        )
     return "\n\n    ".join(out)
 
 
