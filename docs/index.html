@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>daily-proof</title>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap" rel="stylesheet" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { display: grid; place-items: center; background: #fff; color: #9a9a9a;
+           font-family: 'Shippori Mincho', serif; }
+  </style>
+  <script>
+    fetch('./index.json')
+      .then(function (r) { return r.json(); })
+      .then(function (list) {
+        if (!list.length) { document.body.textContent = 'まだ証明がありません。'; return; }
+        var pick = list[Math.floor(Math.random() * list.length)];
+        location.replace('./' + pick.date + '.html');
+      })
+      .catch(function () { document.body.textContent = '読み込みに失敗しました。'; });
+  </script>
+</head>
+<body>…</body>
+</html>

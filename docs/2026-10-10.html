@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>√2 は無理数である — daily-proof</title>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="./assets/style.css" />
+</head>
+<body data-date="2026-10-10">
+  <main class="container">
+    <header class="site-header">
+      <p class="eyebrow reveal" data-delay="60">2026年10月10日</p>
+      <h1 class="title reveal" data-delay="120">√2 は無理数である</h1>
+      <p class="source reveal" data-delay="160">出典：ユークリッド原論(背理法の古典例)</p>
+      <hr class="divider reveal" data-delay="200" aria-hidden="true" />
+    </header>
+
+    <section class="block">
+      <h2 class="label reveal">命題</h2>
+      <div class="body fragmentize"><p>$\sqrt{2}$ は無理数である。すなわち、整数 $p, q$ を用いて $\sqrt{2} = p/q$ と表すことはできない。</p></div>
+    </section>
+
+    <section class="block">
+      <h2 class="label reveal">証明</h2>
+      <div class="body fragmentize"><p>背理法で示す。$\sqrt{2}$ が有理数であると仮定し、既約分数 $\sqrt{2} = p/q$ と書く。ここで $p, q$ は互いに素な整数とする。</p>
+<p>両辺を2乗すると $2 = p^2 / q^2$、すなわち $p^2 = 2 q^2$ を得る。よって $p^2$ は偶数であり、したがって $p$ も偶数である。</p>
+<p>そこで $p = 2k$ とおくと、$4 k^2 = 2 q^2$、すなわち $q^2 = 2 k^2$ となる。同じ理由で $q$ も偶数である。</p>
+<p>しかしこれは $p$ と $q$ が互いに素であるという仮定に反する。ゆえに $\sqrt{2}$ は有理数ではなく、無理数である。</p></div>
+      <p class="qed reveal">∎</p>
+    </section>
+
+    <nav class="calendar-wrap" aria-label="カレンダー">
+      <div id="calendar"></div>
+    </nav>
+  </main>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <script defer src="./assets/reveal.js"></script>
+  <script defer src="./assets/calendar.js"></script>
+</body>
+</html>
