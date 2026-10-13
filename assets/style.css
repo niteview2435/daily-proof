@@ -1,3 +1,8 @@
+:root {
+  --accent: #3a6ea5;      /* 落ち着いた青 */
+  --accent-dark: #2f5a87; /* hover 用の濃い青 */
+}
+
 /* ---- Base typography (adapted from the Web5 ideal) ----
    Computer Modern (the LaTeX typeface) for Latin/math-adjacent text, falling
    back to a mincho for Japanese glyphs — mirroring a Japanese LaTeX document. */
@@ -33,7 +38,7 @@ html, body {
   font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: 0.2em;
-  color: #b06a4f;
+  color: var(--accent);
   margin: 0 0 20px;
 }
 
@@ -53,7 +58,7 @@ html, body {
 .qed {
   text-align: right;
   font-size: 1.3rem;
-  color: #b06a4f;
+  color: var(--accent);
   margin: 0;
 }
 
@@ -96,7 +101,7 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 24px;
-  margin-bottom: 20px;
+  margin: 20px 0 36px;
 }
 
 .cal-title {
@@ -143,15 +148,20 @@ html, body {
 
 .cal-cell.empty { visibility: hidden; }
 
+/* 証明がある日は文字をアクセントカラーに */
 .cal-cell.has-proof {
-  color: #fff;
-  background: #b06a4f;
+  color: var(--accent);
 }
-a.cal-cell.has-proof:hover { background: #955440; }
+a.cal-cell.has-proof:hover { color: var(--accent-dark); }
 
+/* 開いているページの日は、小さめのアクセントカラーの丸で包む */
 .cal-cell.current {
-  outline: 2px solid #b06a4f;
-  outline-offset: 2px;
+  color: #fff;
+  background: radial-gradient(
+    circle,
+    var(--accent) 0 0.85em,
+    transparent 0.85em
+  );
 }
 
 @media (max-width: 480px) {
