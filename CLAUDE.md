@@ -35,7 +35,7 @@ Source → one file per day: `proofs/YYYY-MM-DD.md`. The date comes from the fil
 - `parse()` → list of `(proposition, proof)` pairs in document order; `parse_tags()` → tag list.
 - `md_to_html()` is a deliberately tiny Markdown subset (paragraphs, `-` lists, `**bold**`/`*italic*`/`` `code` ``). Consecutive non-blank lines join into one paragraph; blank lines separate paragraphs.
 - Math safety: `protect_math()`/`restore_math()` swap `$...$` and `$$...$$` spans for placeholders **around** the Markdown pass so Markdown can't mangle them, then restore the raw TeX for MathJax.
-- `render_sections()` emits stacked `<section class="block reveal">` groups; the date + tags appear once at the top, the divider `<hr>` rides inside the **last** section (so it fades in with the final proof).
+- `render_sections()` emits stacked `<section class="block reveal">` groups; the date appears once at the top, the divider `<hr>` rides inside the **last** section (so it fades in with the final proof). Tags are deliberately **not** rendered — they are written only into `index.json` for future sorting/filtering.
 - `DAY_TEMPLATE` / `INDEX_TEMPLATE` are `str.format` templates. Literal braces in a template must be doubled (`{{ }}`) — see the MathJax config block. Substituted values may safely contain `{ }` (e.g. `\frac{}{}`).
 
 Output in `docs/`:

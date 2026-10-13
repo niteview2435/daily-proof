@@ -30,41 +30,6 @@ html, body {
   color: #9a9a9a;
 }
 
-/* 日付と命題の間に並ぶタグ */
-.tags {
-  margin: 0 0 28px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  font-family: 'Latin Modern Sans', 'Noto Sans JP', sans-serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: #fff;
-  background: var(--ink);
-  padding: 3px 10px 3px 16px;
-  /* 左がとがったタグ型(三角 + 長方形) */
-  clip-path: polygon(0 50%, 8px 0, 100% 0, 100% 100%, 8px 100%);
-}
-
-/* タグの穴 */
-.tag::before {
-  content: "";
-  position: absolute;
-  left: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #fff;
-}
-
 /* ---- Proposition / proof blocks ---- */
 .block {
   margin: 0 0 96px;

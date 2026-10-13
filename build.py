@@ -132,8 +132,12 @@ def parse_tags(text):
     return []
 
 
-def render_sections(pairs, date_jp_str, tags):
-    """Build the stacked proposition/proof <section>s for one day page."""
+def render_sections(pairs, date_jp_str):
+    """Build the stacked proposition/proof <section>s for one day page.
+
+    Tags are intentionally not rendered — they live in index.json only, for
+    sorting/filtering later.
+    """
     multi = len(pairs) > 1
     out = []
     first = [True]
@@ -142,11 +146,7 @@ def render_sections(pairs, date_jp_str, tags):
         if not first[0]:
             return ""
         first[0] = False
-        html = f'<p class="eyebrow">{date_jp_str}</p>\n      '
-        if tags:
-            chips = "".join(f'<span class="tag">{t}</span>' for t in tags)
-            html += f'<p class="tags">{chips}</p>\n      '
-        return html
+        return f'<p class="eyebrow">{date_jp_str}</p>\n      '
 
     for i, (prop, proof) in enumerate(pairs, 1):
         plabel = f"命題 {i}" if multi else "命題"
@@ -269,11 +269,11 @@ def build():
         d = md.stem  # YYYY-MM-DD
         text = md.read_text(encoding="utf-8")
         pairs = parse(text)
-        tags = parse_tags(text)
+        tags = parse_tags(text)  # stored in index.json only, not rendered
         html = DAY_TEMPLATE.format(
             date=d,
             date_jp=date_jp(d),
-            content=render_sections(pairs, date_jp(d), tags),
+            content=render_sections(pairs, date_jp(d)),
             mathjax=MATHJAX_CDN,
             lm_roman=LM_ROMAN_CSS,
             lm_sans=LM_SANS_CSS,
