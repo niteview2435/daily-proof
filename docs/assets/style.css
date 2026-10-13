@@ -4,14 +4,15 @@
 }
 
 /* ---- Base typography (adapted from the Web5 ideal) ----
-   Computer Modern (the LaTeX typeface) for Latin/math-adjacent text, falling
-   back to a mincho for Japanese glyphs — mirroring a Japanese LaTeX document. */
+   Latin Modern (the typeface modern LaTeX ships) for Latin/math-adjacent text,
+   falling back to a mincho for Japanese glyphs — mirroring a Japanese LaTeX
+   document. */
 html, body {
   margin: 0;
   padding: 0;
   background-color: #ffffff;
   color: #404040;
-  font-family: 'Computer Modern Serif', 'Shippori Mincho', serif;
+  font-family: 'Latin Modern Roman', 'Shippori Mincho', serif;
   font-size: 17.12px;
   line-height: 1.6;
 }
@@ -35,8 +36,8 @@ html, body {
 }
 
 .label {
-  /* 見出しだけゴシック(LaTeX の Computer Modern Sans + 和文ゴシック) */
-  font-family: 'Computer Modern Sans', 'Noto Sans JP', sans-serif;
+  /* 見出しだけゴシック(LaTeX の Latin Modern Sans + 和文ゴシック) */
+  font-family: 'Latin Modern Sans', 'Noto Sans JP', sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.2em;

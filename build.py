@@ -20,8 +20,11 @@ OUT = ROOT / "docs"
 ASSETS = ROOT / "assets"
 
 MATHJAX_CDN = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-# Computer Modern (the classic LaTeX typeface) for Latin/body text.
-CM_FONT_CSS = "https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css"
+# Latin Modern — the typeface modern (Lua)LaTeX actually ships. Roman for body
+# text, Sans for the gothic headings.
+LM_BASE = "https://cdn.jsdelivr.net/gh/sugina-dev/latin-modern-web@1.0.1/style"
+LM_ROMAN_CSS = f"{LM_BASE}/latinmodern-roman.css"
+LM_SANS_CSS = f"{LM_BASE}/latinmodern-sans.css"
 
 
 # --- tiny markdown -----------------------------------------------------------
@@ -116,7 +119,8 @@ DAY_TEMPLATE = """<!DOCTYPE html>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{date_jp} — daily-proof</title>
-  <link rel="stylesheet" href="{cm_font}" />
+  <link rel="stylesheet" href="{lm_roman}" />
+  <link rel="stylesheet" href="{lm_sans}" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&family=Shippori+Mincho&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/style.css" />
   <script>
@@ -206,7 +210,8 @@ def build():
             prop=md_to_html(prop),
             proof=md_to_html(proof),
             mathjax=MATHJAX_CDN,
-            cm_font=CM_FONT_CSS,
+            lm_roman=LM_ROMAN_CSS,
+            lm_sans=LM_SANS_CSS,
         )
         (OUT / f"{d}.html").write_text(html, encoding="utf-8")
         entries.append({"date": d})
