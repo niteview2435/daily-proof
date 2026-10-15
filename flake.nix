@@ -13,14 +13,15 @@
       in {
         devShells.default = pkgs.mkShell {
           # The build script is pure-stdlib Python; math is rendered client-side
-          # by KaTeX, so the shell stays intentionally small.
+          # by MathJax, so the shell stays intentionally small.
           packages = [ pkgs.python3 pkgs.gnumake ];
 
           shellHook = ''
             echo "daily-proof — dev shell"
-            echo "  make new     scaffold today's proof in proofs/"
-            echo "  make build   generate the static site into docs/"
-            echo "  make serve   build, then preview at http://localhost:8000"
+            echo "  make new      scaffold today's proof in proofs/"
+            echo "  make build    generate the static site into docs/"
+            echo "  make serve    build, then preview at http://localhost:8000"
+            echo "  make preview  serve and auto-open the newest proof"
           '';
         };
       });
