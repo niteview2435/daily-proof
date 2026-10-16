@@ -85,9 +85,10 @@ def md_to_html(text):
     for line in text.split("\n"):
         line = line.rstrip()
         if re.match(r"^\s*([-*_])\1{2,}\s*$", line):
+            # A rule line (---, ***, ___) just ends the current block; no <hr>
+            # is drawn. Lets stray separators in pasted drafts stay harmless.
             flush_para()
             flush_list()
-            out.append('<hr />')
         elif re.match(r"^\s*-\s+", line):
             flush_para()
             if items is None:
