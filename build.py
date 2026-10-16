@@ -62,6 +62,22 @@ def inline(s):
     return s
 
 
+# Japanese runs (kana / kanji / full-width punctuation & forms) get wrapped so
+# CSS can tint them darker than the lighter Latin Modern Roman they sit beside —
+# the font-family fallback alone can't colour per script. Half-width Latin,
+# digits, symbols and math stay the body default. Covers CJK symbols/punctuation
+# (、。「」々…), hiragana, katakana (+ー), CJK ideographs (incl. ext-A), and
+# full-width forms. Run on the final HTML: generated tags hold no CJK, and the
+# ASCII math placeholders (\x00M…\x00) never match, so this can't corrupt either.
+JP_RE = re.compile(
+    r"[　-〿぀-ゟ゠-ヿ㐀-䶿一-鿿＀-￯]+"
+)
+
+
+def wrap_jp(s):
+    return JP_RE.sub(r'<span class="jp">\g<0></span>', s)
+
+
 def md_to_html(text):
     text, store = protect_math(text)
     # Escape prose <, >, & now (math is already out as placeholders) so body
@@ -105,7 +121,7 @@ def md_to_html(text):
             para.append(line.strip())
     flush_para()
     flush_list()
-    return restore_math("\n".join(out), store)
+    return restore_math(wrap_jp("\n".join(out)), store)
 
 
 # --- source parsing ----------------------------------------------------------

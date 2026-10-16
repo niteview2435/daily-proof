@@ -45,6 +45,15 @@ html, body {
   margin: 0 0 20px;
 }
 
+/* 本文の既定色はラテン(Latin Modern Roman)用に少し薄く。
+   和文(.jp = Shippori Mincho)だけ従来の濃さに戻す。build.py が
+   かな・漢字・全角の連なりを <span class="jp"> で包んで出力する。 */
+.body { color: #4d4d4d; }
+.body .jp { color: #404040; }
+/* 数式(MathJax 出力)はラテン本文よりさらに少し薄く。CHTML は currentColor を
+   使うので mjx-container に色を当てれば行内・ディスプレイ両方に効く。 */
+.body mjx-container { color: #5c5c5c; }
+
 .body p {
   line-height: 2.4; /* Web5.html の本文行間に合わせる */
   margin: 0 0 1.6em;
