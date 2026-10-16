@@ -76,7 +76,11 @@ def md_to_html(text):
 
     for line in text.split("\n"):
         line = line.rstrip()
-        if re.match(r"^\s*-\s+", line):
+        if re.match(r"^\s*([-*_])\1{2,}\s*$", line):
+            flush_para()
+            flush_list()
+            out.append('<hr />')
+        elif re.match(r"^\s*-\s+", line):
             flush_para()
             if items is None:
                 items = []
@@ -94,30 +98,32 @@ def md_to_html(text):
 
 # --- source parsing ----------------------------------------------------------
 
-def parse(text):
-    """Return a list of (proposition, proof) pairs in document order.
+# Section headings recognised in a day file, in rough document order of use.
+# Any sequence of these may appear; same-kind repeats are auto-numbered.
+SECTION_KINDS = ("定義", "公理", "補題", "命題", "定理", "証明", "例", "系", "注意")
+SECTION_RE = re.compile(
+    r"(?m)^#\s+(" + "|".join(SECTION_KINDS) + r")\s*$"
+)
 
-    A day file may hold several `# 命題` / `# 証明` sections; they are paired
-    up sequentially so one day can carry multiple proofs.
+
+def parse(text):
+    """Return a list of (kind, content) sections in document order.
+
+    A day file may hold any sequence of the recognised `# <kind>` headings
+    (see SECTION_KINDS) — e.g. 定義 / 命題 / 証明 / 例. Empty sections (a
+    heading with no body) are dropped. Repeats of the same kind are numbered
+    later at render time.
     """
     body = text.strip()
-    parts = re.split(r"(?m)^#\s+(命題|証明)\s*$", body)
-    rest = iter(parts[1:])  # alternating (name, content)
+    parts = SECTION_RE.split(body)
+    rest = iter(parts[1:])  # alternating (kind, content)
 
-    pairs = []
-    pending_prop = None
-    for name, content in zip(rest, rest):
+    sections = []
+    for kind, content in zip(rest, rest):
         content = content.strip()
-        if name == "命題":
-            if pending_prop is not None:
-                pairs.append((pending_prop, ""))  # proposition with no proof yet
-            pending_prop = content
-        else:  # 証明
-            pairs.append((pending_prop or "", content))
-            pending_prop = None
-    if pending_prop is not None:
-        pairs.append((pending_prop, ""))
-    return pairs
+        if content:
+            sections.append((kind, content))
+    return sections
 
 
 def parse_tags(text):
@@ -132,15 +138,23 @@ def parse_tags(text):
     return []
 
 
-def render_sections(pairs, date_jp_str):
-    """Build the stacked proposition/proof <section>s for one day page.
+def render_sections(sections, date_jp_str):
+    """Build the stacked <section>s for one day page.
+
+    Each (kind, content) section becomes one fade-in block. A kind that occurs
+    more than once in the day is numbered (`命題 1`, `命題 2`, …); a lone kind
+    is left unnumbered. 証明 blocks get a trailing ∎.
 
     Tags are intentionally not rendered — they live in index.json only, for
     sorting/filtering later.
     """
-    multi = len(pairs) > 1
+    totals = {}
+    for kind, _ in sections:
+        totals[kind] = totals.get(kind, 0) + 1
+
     out = []
     first = [True]
+    seen = {}
 
     def eyebrow():
         if not first[0]:
@@ -148,24 +162,22 @@ def render_sections(pairs, date_jp_str):
         first[0] = False
         return f'<p class="eyebrow">{date_jp_str}</p>\n      '
 
-    for i, (prop, proof) in enumerate(pairs, 1):
-        plabel = f"命題 {i}" if multi else "命題"
-        qlabel = f"証明 {i}" if multi else "証明"
-        if prop.strip():
-            out.append(
-                '<section class="block reveal">\n'
-                f"      {eyebrow()}<h2 class=\"label\">{plabel}</h2>\n"
-                f'      <div class="body">{md_to_html(prop)}</div>\n'
-                "    </section>"
-            )
-        if proof.strip():
-            out.append(
-                '<section class="block reveal">\n'
-                f"      {eyebrow()}<h2 class=\"label\">{qlabel}</h2>\n"
-                f'      <div class="body">{md_to_html(proof)}</div>\n'
-                '      <p class="qed">∎</p>\n'
-                "    </section>"
-            )
+    for kind, content in sections:
+        if totals[kind] > 1:
+            seen[kind] = seen.get(kind, 0) + 1
+            label = f"{kind} {seen[kind]}"
+        else:
+            label = kind
+        # ∎ as LaTeX (\blacksquare) so MathJax typesets it in the same font as
+        # the rest of the math, not a raw Unicode glyph from the body font.
+        qed = '\n      <p class="qed">$\\blacksquare$</p>' if kind == "証明" else ""
+        out.append(
+            '<section class="block reveal">\n'
+            f"      {eyebrow()}<h2 class=\"label\">{label}</h2>\n"
+            f'      <div class="body">{md_to_html(content)}</div>'
+            f"{qed}\n"
+            "    </section>"
+        )
 
     # The divider rides along in the last block so it fades in together with
     # the final proof; the calendar reveals separately below it.
@@ -268,12 +280,12 @@ def build():
     for md in sorted(SRC.glob("*.md")):
         d = md.stem  # YYYY-MM-DD
         text = md.read_text(encoding="utf-8")
-        pairs = parse(text)
+        sections = parse(text)
         tags = parse_tags(text)  # stored in index.json only, not rendered
         html = DAY_TEMPLATE.format(
             date=d,
             date_jp=date_jp(d),
-            content=render_sections(pairs, date_jp(d)),
+            content=render_sections(sections, date_jp(d)),
             mathjax=MATHJAX_CDN,
             lm_roman=LM_ROMAN_CSS,
             lm_sans=LM_SANS_CSS,

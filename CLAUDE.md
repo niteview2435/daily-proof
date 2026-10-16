@@ -29,13 +29,13 @@ Single-file generator `build.py` (stdlib only). Math is rendered **client-side b
 
 Source → one file per day: `proofs/YYYY-MM-DD.md`. The date comes from the filename (no frontmatter). A file may contain:
 - an optional leading `tags:` line (comma / 、 / space separated) before the first heading, and
-- one or more `# 命題` / `# 証明` section pairs. Multiple pairs on one day are supported and auto-numbered (`命題 1 / 証明 1 / …`).
+- one or more `# <kind>` sections in any order, where `<kind>` is one of the recognised headings (`build.py`'s `SECTION_KINDS`: 定義 / 公理 / 補題 / 命題 / 定理 / 証明 / 例 / 系 / 注意). Any kind that repeats on a day is auto-numbered (`命題 1 / 命題 2 / …`), independently per kind; a lone kind is left unnumbered. An empty section (heading with no body) is dropped.
 
 `build.py` pipeline:
-- `parse()` → list of `(proposition, proof)` pairs in document order; `parse_tags()` → tag list.
-- `md_to_html()` is a deliberately tiny Markdown subset (paragraphs, `-` lists, `**bold**`/`*italic*`/`` `code` ``). Consecutive non-blank lines join into one paragraph; blank lines separate paragraphs.
+- `parse()` → list of `(kind, content)` sections in document order; `parse_tags()` → tag list.
+- `md_to_html()` is a deliberately tiny Markdown subset (paragraphs, `-` lists, `---` horizontal rules, `**bold**`/`*italic*`/`` `code` ``). Consecutive non-blank lines join into one paragraph; blank lines separate paragraphs.
 - Math safety: `protect_math()`/`restore_math()` swap `$...$` and `$$...$$` spans for placeholders **around** the Markdown pass so Markdown can't mangle them, then restore the raw TeX for MathJax.
-- `render_sections()` emits stacked `<section class="block reveal">` groups; the date appears once at the top, the divider `<hr>` rides inside the **last** section (so it fades in with the final proof). Tags are deliberately **not** rendered — they are written only into `index.json` for future sorting/filtering.
+- `render_sections()` emits stacked `<section class="block reveal">` groups (one per section; 証明 blocks get a trailing ∎); the date appears once at the top, the divider `<hr>` rides inside the **last** section (so it fades in with the final block). Tags are deliberately **not** rendered — they are written only into `index.json` for future sorting/filtering.
 - `DAY_TEMPLATE` / `INDEX_TEMPLATE` are `str.format` templates. Literal braces in a template must be doubled (`{{ }}`) — see the MathJax config block. Substituted values may safely contain `{ }` (e.g. `\frac{}{}`).
 
 Output in `docs/`:
