@@ -7,6 +7,7 @@ written as $...$ / $$...$$ and rendered client-side by MathJax, so this script
 needs only the standard library.
 """
 
+import html
 import json
 import re
 import shutil
@@ -44,10 +45,14 @@ def protect_math(text):
     return MATH_RE.sub(repl, text), store
 
 
-def restore_math(html, store):
+def restore_math(text, store):
+    # Escape <, >, & inside the raw TeX so the browser doesn't read e.g. `$a<b$`
+    # as an opening tag. MathJax reads the decoded DOM text, so it still sees the
+    # original characters. & must be replaced first.
     for i, raw in enumerate(store):
-        html = html.replace(f"\x00M{i}\x00", raw)
-    return html
+        esc = raw.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        text = text.replace(f"\x00M{i}\x00", esc)
+    return text
 
 
 def inline(s):
@@ -59,6 +64,9 @@ def inline(s):
 
 def md_to_html(text):
     text, store = protect_math(text)
+    # Escape prose <, >, & now (math is already out as placeholders) so body
+    # text and inline code can contain them safely; math is escaped on restore.
+    text = html.escape(text, quote=False)
     out = []
     para = []
     items = None
@@ -88,8 +96,11 @@ def md_to_html(text):
         elif line.strip() == "":
             flush_para()
             flush_list()
+        elif items is not None:
+            # Lazy continuation: a non-blank line under an open list extends the
+            # current item (proofs often run a bullet across several lines).
+            items[-1] += " " + inline(line.strip())
         else:
-            flush_list()
             para.append(line.strip())
     flush_para()
     flush_list()
