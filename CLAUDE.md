@@ -29,18 +29,23 @@ Single-file generator `build.py` (stdlib only). Math is rendered **client-side b
 
 Source → one file per day: `proofs/YYYY-MM-DD.md`. The date comes from the filename (no frontmatter). A file may contain:
 - an optional leading `tags:` line (comma / 、 / space separated) before the first heading, and
-- one or more `# <kind>` sections in any order, where `<kind>` is one of the recognised headings (`build.py`'s `SECTION_KINDS`: 定義 / 公理 / 補題 / 命題 / 定理 / 証明 / 例 / 系 / 注意). Any kind that repeats on a day is auto-numbered (`命題 1 / 命題 2 / …`), independently per kind; a lone kind is left unnumbered. An empty section (heading with no body) is dropped.
+- one or more `# <kind>` sections in any order, where `<kind>` is one of the recognised headings (`build.py`'s `SECTION_KINDS`: 定義 / 公理 / 補題 / 命題 / 定理 / 証明 / 例 / 系 / 注意). A heading may carry an optional one-line **caption** after the kind (`# 命題 相対位相の閉集合の特徴づけ`) — authored in the Markdown and shown on both day and theme pages (in parentheses, body serif, beside the label). Any kind that repeats on a day is auto-numbered (`命題 1 / 命題 2 / …`), independently per kind; a lone kind is left unnumbered. An empty section (heading with no body) is dropped.
 
 `build.py` pipeline:
-- `parse()` → list of `(kind, content)` sections in document order; `parse_tags()` → tag list.
+- `parse()` → list of `(kind, caption, content)` sections in document order; `parse_tags()` → tag list.
 - `md_to_html()` is a deliberately tiny Markdown subset (paragraphs, `-` lists, `**bold**`/`*italic*`/`` `code` ``). Consecutive non-blank lines join into one paragraph; blank lines separate paragraphs. A rule line (`---`/`***`/`___`) is treated as a block separator only — no `<hr>` is emitted, so stray separators in pasted drafts stay harmless.
 - Math safety: `protect_math()`/`restore_math()` swap `$...$` and `$$...$$` spans for placeholders **around** the Markdown pass so Markdown can't mangle them, then restore the raw TeX for MathJax.
-- `render_sections()` emits stacked `<section class="block reveal">` groups (one per section; 証明 blocks get a trailing ∎); the date appears once at the top, the divider `<hr>` rides inside the **last** section (so it fades in with the final block). Tags are deliberately **not** rendered — they are written only into `index.json` for future sorting/filtering.
-- `DAY_TEMPLATE` / `INDEX_TEMPLATE` are `str.format` templates. Literal braces in a template must be doubled (`{{ }}`) — see the MathJax config block. Substituted values may safely contain `{ }` (e.g. `\frac{}{}`).
+- `render_sections(sections, eyebrow_html, with_divider, show_captions)` emits stacked `<section class="block reveal">` groups (one per section; 証明 blocks get a trailing ∎); `eyebrow_html` (the date, on day pages) is placed above the first block, the divider `<hr>` rides inside the **last** section when `with_divider` is set, and `show_captions` (set on both day and theme pages) renders each heading's caption as a `<span class="caption">` beside its label. Tags are deliberately **not** rendered — they are written only into `index.json` for future sorting/filtering.
+- Theme articles (分野記事): `split_clusters()` breaks a day into **items** (each 定義/公理/補題/命題/定理/系 opens a new item; a following 証明/例/注意 attaches to the item above). `theme_map.json` maps each day to a theme (or, when a day spans themes, one theme name per item in document order); `assign_days_into_themes()` files every item under its theme and `render_theme()` stacks a theme's items oldest-first — captioned by their headings, with **no** source-day eyebrow and **no** dividers. This is a read-later **reorganisation layer over the daily log** — the daily pages remain the primary artifact.
+- `DAY_TEMPLATE` / `THEME_TEMPLATE` / `INDEX_TEMPLATE` are `str.format` templates. Literal braces in a template must be doubled (`{{ }}`) — see the MathJax config block. Substituted values may safely contain `{ }` (e.g. `\frac{}{}`).
+
+`theme_map.json` (repo root, **hand-maintained by Claude — the author never touches it**): `{themes: [{name, slug}], assign: {YYYY-MM-DD: name | [name, …]}}`. Themes are kept **broad** (a few standing fields like 高校数学 / 確率論 / 位相空間論); new proofs accrete into existing themes rather than spawning a narrow new one, unless a genuinely new field appears. **Workflow when a new `proofs/` day is added:** read it, then add an `assign` entry — a single theme name if the whole day is one field, or a per-item list if it splits across fields (count must equal the day's item count, or be a single name to broadcast). Use an existing theme when it fits; add to `themes[]` only for a real new field. An unassigned day just prints a build warning and is omitted from articles (the daily page is unaffected); an unknown theme name or a list-length mismatch is a hard build error.
 
 Output in `docs/`:
 - `YYYY-MM-DD.html` per day.
+- `theme-<slug>.html` per theme that has ≥1 item.
 - `index.json` — manifest `[{date, tags}]`, newest first.
+- `themes.json` — manifest `[{name, slug, file, count, dates}]` in `theme_map.json` order (for a future portfolio entry point to fetch, mirroring `index.json`).
 - `index.html` — there is **no dedicated home**; it fetches `index.json`, picks a random date, and `location.replace()`s to that day page.
 - `assets/` — copied verbatim from the top-level `assets/`.
 

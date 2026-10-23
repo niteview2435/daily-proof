@@ -13,10 +13,12 @@ build:
 serve: build
 	python3 -m http.server 8000 --directory docs
 
-# Build, serve, and auto-open the newest proof in the browser.
-preview: build
+# Watch sources, auto-rebuild on save, auto-open + live-reload the newest proof.
+# The live-reload script is injected only in this --watch mode, never into the
+# committed/CI docs/ output. Ctrl-C to stop.
+preview:
 	@( sleep 1; open "http://localhost:8000/$(LATEST_HTML)" ) &
-	python3 -m http.server 8000 --directory docs
+	python3 build.py --watch
 
 # Scaffold today's proof file in proofs/ (no-op if it already exists).
 new:

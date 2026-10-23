@@ -30,6 +30,34 @@ html, body {
   color: #9a9a9a;
 }
 
+/* ---- Theme article header ---- */
+.theme-head {
+  margin: 0 0 150px;
+}
+
+.theme-title {
+  font-family: 'Latin Modern Sans', 'Noto Sans JP', sans-serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Caption beside an item's label on theme pages: a gloss of what the 命題 etc.
+   is. The kind stays gothic/bold; the caption sits after a space, in the body
+   serif (Latin Modern Roman / Shippori Mincho) and wrapped in parentheses. */
+.label .caption {
+  margin-left: 0.5em;
+  font-family: 'Latin Modern Roman', 'Shippori Mincho', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #4d4d4d;
+}
+.label .caption::before { content: "("; }
+.label .caption::after { content: ")"; }
+
 /* ---- Proposition / proof blocks ---- */
 .block {
   margin: 0 0 96px;
